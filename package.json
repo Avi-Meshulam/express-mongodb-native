@@ -1,0 +1,17 @@
+{
+  "name": "post-api-server",
+  "version": "1.0.0",
+  "description": "post-api-server based on jason placeholder",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon error_handling.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongodb": "^3.3.0-beta2"
+  }
+}
