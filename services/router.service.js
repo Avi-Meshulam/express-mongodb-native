@@ -13,7 +13,7 @@ class RouterService {
     router
       .all('*', async (req, res, next) => {
         if (!data || !data.isReady) {
-          res.sendStatus(503);
+          res.sendStatus(503);  // Service Unavailable
         } else {
           next();
         }
