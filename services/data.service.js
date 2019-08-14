@@ -1,43 +1,43 @@
 'use strict';
 
+const DBService = require('./db.mongo.service');
 const { filterObj } = require('../utils');
-const DBService = require('./db.service');
+
+const dbService = new DBService();
 
 class DataService {
   constructor(collectionName, idField = 'id', mutableFields = []) {
-    DBService.getDBConnection().then(db => {
-      this._collection = db.collection(collectionName);
-    });
-    this._idField = idField;
-    this._mutableFields = mutableFields;
+    this.collectionName = collectionName;
+    this.idField = idField;
+    this.mutableFields = mutableFields;
   }
 
   get isReady() {
-    return this._collection ? true : false;
+    return dbService.isReady();
   }
 
-  async getAll() {
-    return this._collection.find({}, { projection: { _id: 0 } }).toArray();
+  getAll() {
+    return dbService.getAll(this.collectionName);
   }
 
-  async getById(id) {
-    return this._collection.findOne({ id }, { projection: { _id: 0 } });
+  getById(id) {
+    return dbService.getById(this.collectionName, id);
   }
 
-  async getByQuery(queryObj) {
-    return this._collection.find(queryObj, { projection: { _id: 0 } }).toArray();
+  getByQuery(queryObj) {
+    return dbService.getByQuery(this.collectionName, queryObj);
   }
 
   async insert(data) {
-    let doc = filterObj(data, this._mutableFields); // Optional
-    const id = await this.getNextId();
-    await this._collection.insertOne({ ...doc, id });
+    let doc = filterObj(data, this.mutableFields); // Optional
+    const id = await dbService.getMax(this.collectionName, 'id') + 1;
+    await dbService.insert(this.collectionName, { ...doc, id });
     return { id, ...doc };
   }
 
   async update(id, data) {
-    const doc = filterObj(data, this._mutableFields); // Optional
-    const result = await this._collection.updateOne({ id }, { $set: { ...doc, id } });
+    const doc = filterObj(data, this.mutableFields); // Optional
+    const result = await dbService.update(this.collectionName, id, { ...doc, id });
     return {
       matchedCount: result.matchedCount,
       modifiedCount: result.modifiedCount
@@ -45,13 +45,10 @@ class DataService {
   }
 
   async remove(id) {
-    const result = await this._collection.deleteOne({ id });
-    return { deletedCount: result.deletedCount };
-  }
-
-  async getNextId(fieldName = 'id') {
-    const maxId = (await this._collection.find().sort({ [fieldName]: -1 }).limit(1).next())[fieldName];
-    return maxId + 1;
+    const result = await dbService.remove(this.collectionName, id);
+    return { 
+      deletedCount: result.deletedCount 
+    };
   }
 }
 

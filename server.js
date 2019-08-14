@@ -1,8 +1,8 @@
 'use strict';
 
 const express = require('express');
-const RouterService = require('./services/router.service');
-const postsRouter = new RouterService('posts', 'id', ['userId', 'title', 'body']).router;
+const dataRouter = require('./services/data.router.service');
+const postsRouter = dataRouter('posts', 'id', ['userId', 'title', 'body']);
 
 const app = express();
 app.use(express.json());                          // to support JSON-encoded bodies
