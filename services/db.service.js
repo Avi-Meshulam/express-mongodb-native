@@ -5,10 +5,25 @@ const MongoClient = require('mongodb').MongoClient;
 const DEFAULT_URL = 'mongodb://localhost:27017';
 const DEFAULT_DB = 'blog';
 
+class DBService {
+  static async getDBConnection(url = DEFAULT_URL, dbName = DEFAULT_DB) {
+    if (!this._db) {
+      this._db = await connect(url, dbName);
+    }
+    return this._db;
+  }
+  static async createIndex(collection, ...fields) {
+    if (!(await indexExists(collection, fields))) {
+      const key = fields.reduce((keyObj, field) => ({ ...keyObj, [field]: 1 }), {});
+      collection.createIndex(key);
+    }
+  }
+}
+
 const connect = async (url = DEFAULT_URL, dbName = DEFAULT_DB) => {
   return MongoClient.connect(url, { useNewUrlParser: true })
     .then(client => {
-      console.log("Connected successfully to server");
+      console.log(`Connected successfully to database ${dbName}`);
       return client.db(dbName);
     })
     .catch(err => {
@@ -33,20 +48,5 @@ const indexExists = async (collection, ...fields) => {
   }
   return counter < indexes.length;
 };
-
-class DBService {
-  static async getDBConnection(url = DEFAULT_URL, dbName = DEFAULT_DB) {
-    if (!this._db) {
-      this._db = await connect(url, dbName);
-    }
-    return this._db;
-  }
-  static async createIndex(collection, ...fields) {
-    if (!(await indexExists(collection, fields))) {
-      const key = fields.reduce((keyObj, field) => ({ ...keyObj, [field]: 1 }), {});
-      collection.createIndex(key);
-    }
-  }
-}
 
 module.exports = DBService;

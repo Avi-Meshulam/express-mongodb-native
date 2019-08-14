@@ -4,11 +4,12 @@ const { filterObj } = require('../utils');
 const DBService = require('./db.service');
 
 class DataService {
-  constructor(collectionName, collectionFields = []) {
+  constructor(collectionName, idField = 'id', mutableFields = []) {
     DBService.getDBConnection().then(db => {
       this._collection = db.collection(collectionName);
     });
-    this._collectionFields = collectionFields;
+    this._idField = idField;
+    this._mutableFields = mutableFields;
   }
 
   get isReady() {
@@ -28,18 +29,18 @@ class DataService {
   }
 
   async insert(data) {
-    let doc = filterObj(data, this._collectionFields); // Optional
+    let doc = filterObj(data, this._mutableFields); // Optional
     const id = await this.getNextId();
     await this._collection.insertOne({ ...doc, id });
     return { id, ...doc };
   }
 
   async update(id, data) {
-    const doc = filterObj(data, this._collectionFields); // Optional
+    const doc = filterObj(data, this._mutableFields); // Optional
     const result = await this._collection.updateOne({ id }, { $set: { ...doc, id } });
     return {
       matchedCount: result.matchedCount,
-      updatedCount: result.modifiedCount
+      modifiedCount: result.modifiedCount
     };
   }
 

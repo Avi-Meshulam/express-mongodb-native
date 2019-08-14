@@ -3,13 +3,13 @@
 const DataService = require('./data.service');
 
 class RouterService {
-  constructor(collectionName, collectionFields = []) {
-    this.data = new DataService(collectionName, collectionFields);
+  constructor(collectionName, idField = 'id', mutableFields = []) {
     this.router = require('express').Router();
-    RouterService.initRouter(this.router, this.data);
+    this.dataService = new DataService(collectionName, idField, mutableFields);
+    this.initRouter(this.router, this.dataService);
   }
 
-  static initRouter(router, data) {
+  initRouter(router, data) {
     router
       .all('*', async (req, res, next) => {
         if (!data || !data.isReady) {

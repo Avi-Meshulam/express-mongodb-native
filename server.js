@@ -2,7 +2,7 @@
 
 const express = require('express');
 const RouterService = require('./services/router.service');
-const postsRouter = new RouterService('posts', ['userId', 'title', 'body']).router;
+const postsRouter = new RouterService('posts', 'id', ['userId', 'title', 'body']).router;
 
 const app = express();
 app.use(express.json());                          // to support JSON-encoded bodies
