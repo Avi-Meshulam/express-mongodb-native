@@ -1,7 +1,6 @@
 'use strict';
 
 const DBService = require('./db.mongo.service');
-const { filterObj } = require('../utils');
 
 const dbService = new DBService();
 
@@ -46,10 +45,24 @@ class DataService {
 
   async remove(id) {
     const result = await dbService.remove(this.collectionName, id);
-    return { 
-      deletedCount: result.deletedCount 
+    return {
+      deletedCount: result.deletedCount
     };
   }
 }
+
+// returns a copy of the input object with only the specified fields
+const filterObj = (obj, fieldsToKeep) => {
+  if (!fieldsToKeep || fieldsToKeep.length === 0) {
+    return obj;
+  }
+  const result = {};
+  Object.keys(obj).forEach(key => {
+    if (fieldsToKeep.includes(key)) {
+      result[key] = obj[key];
+    }
+  });
+  return result;
+};
 
 module.exports = DataService;
