@@ -11,9 +11,9 @@ class DBService {
   }
 
   static async connect(url = DEFAULT_URL, dbName = DEFAULT_DB) {
-    if (!this._db) {
+    if (!DBService._db) {
       const client = await MongoClient.connect(url, { useNewUrlParser: true });
-      this._db = client.db(dbName);
+      DBService._db = client.db(dbName);
       console.log(`Connected successfully to database ${dbName}`);
     }
     return true;
