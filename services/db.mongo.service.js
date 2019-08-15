@@ -7,13 +7,16 @@ const DEFAULT_DB = 'blog';
 
 class DBService {
   constructor(url = DEFAULT_URL, dbName = DEFAULT_DB) {
-    DBService.initDB(url, dbName);
+    DBService.connect(url, dbName).catch(err => { console.error(err); });
   }
 
-  static async initDB(url = DEFAULT_URL, dbName = DEFAULT_DB) {
+  static async connect(url = DEFAULT_URL, dbName = DEFAULT_DB) {
     if (!this._db) {
-      this._db = await connect(url, dbName);
+      const client = await MongoClient.connect(url, { useNewUrlParser: true });
+      this._db = client.db(dbName);
+      console.log(`Connected successfully to database ${dbName}`);
     }
+    return true;
   }
 
   static async createIndex(collection, ...fields) {
@@ -66,17 +69,5 @@ class DBService {
     return (await collection.find().sort({ [fieldName]: -1 }).limit(1).next())[fieldName];
   }
 }
-
-/*** Helper Functions ***/
-const connect = async (url = DEFAULT_URL, dbName = DEFAULT_DB) => {
-  return MongoClient.connect(url, { useNewUrlParser: true })
-    .then(client => {
-      console.log(`Connected successfully to database ${dbName}`);
-      return client.db(dbName);
-    })
-    .catch(err => {
-      console.error(err);
-    });
-};
 
 module.exports = DBService;
