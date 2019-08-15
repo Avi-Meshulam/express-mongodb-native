@@ -29,7 +29,7 @@ class DataService {
 
   async insert(data) {
     let doc = filterObj(data, this.mutableFields); // Optional
-    const id = await dbService.getMax(this.collectionName, 'id') + 1;
+    const id = await dbService.getMax(this.collectionName, this.idField) + 1;
     await dbService.insert(this.collectionName, { ...doc, id });
     return { id, ...doc };
   }
